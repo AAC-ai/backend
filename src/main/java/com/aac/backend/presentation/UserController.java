@@ -1,6 +1,6 @@
-package com.aac.backend.controller;
+package com.aac.backend.presentation;
 
-import com.aac.backend.controller.dto.response.UserResponse;
+import com.aac.backend.presentation.dto.response.UserResponse;
 import com.aac.backend.domain.User;
 import com.aac.backend.service.UserService;
 import lombok.RequiredArgsConstructor;

@@ -2,12 +2,11 @@ package com.aac.backend.service;
 
 import com.aac.backend.domain.Word;
 import com.aac.backend.domain.WordRepository;
-import com.aac.backend.controller.dto.request.SentenceRequest;
+import com.aac.backend.presentation.dto.request.SentenceRequest;
 import com.aac.backend.global.exception.BusinessException;
 import com.aac.backend.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 

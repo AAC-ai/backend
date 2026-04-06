@@ -1,4 +1,4 @@
-package com.aac.backend.controller.dto.response;
+package com.aac.backend.presentation.dto.response;
 
 import com.aac.backend.domain.Category;
 

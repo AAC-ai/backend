@@ -1,4 +1,4 @@
-package com.aac.backend.controller.dto.request;
+package com.aac.backend.presentation.dto.request;
 
 import jakarta.validation.constraints.NotEmpty;
 

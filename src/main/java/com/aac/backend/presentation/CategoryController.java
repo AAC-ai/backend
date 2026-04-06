@@ -1,6 +1,6 @@
-package com.aac.backend.controller;
+package com.aac.backend.presentation;
 
-import com.aac.backend.controller.dto.response.CategoryResponse;
+import com.aac.backend.presentation.dto.response.CategoryResponse;
 import com.aac.backend.domain.Category;
 import com.aac.backend.service.CategoryService;
 import lombok.RequiredArgsConstructor;

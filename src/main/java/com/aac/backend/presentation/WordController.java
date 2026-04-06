@@ -1,8 +1,8 @@
-package com.aac.backend.controller;
+package com.aac.backend.presentation;
 
-import com.aac.backend.controller.dto.request.SentenceRequest;
-import com.aac.backend.controller.dto.response.SentenceResponse;
-import com.aac.backend.controller.dto.response.WordResponse;
+import com.aac.backend.presentation.dto.request.SentenceRequest;
+import com.aac.backend.presentation.dto.response.SentenceResponse;
+import com.aac.backend.presentation.dto.response.WordResponse;
 import com.aac.backend.domain.Word;
 import com.aac.backend.service.WordService;
 import jakarta.validation.Valid;
