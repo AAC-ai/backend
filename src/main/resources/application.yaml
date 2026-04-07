@@ -1,13 +1,8 @@
 spring:
-  datasource:
-    url: jdbc:mysql://localhost:3306/aac
-    username: root
-    password: root
-    driver-class-name: com.mysql.cj.jdbc.Driver
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
+  application:
+    name: aac-backend
+  profiles:
+    active: local
   ai:
     openai:
       api-key: ${OPENAI_API_KEY}
@@ -18,3 +13,7 @@ spring:
       embedding:
         options:
           model: text-embedding-3-small
+cors:
+  allowed-origins:
+    - http://localhost:5173
+    - http://127.0.0.1:5173
