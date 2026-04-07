@@ -1,6 +1,6 @@
-package com.aac.backend.controller;
+package com.aac.backend.presentation;
 
-import com.aac.backend.controller.dto.response.UserResponse;
+import com.aac.backend.presentation.dto.response.UserResponse;
 import com.aac.backend.domain.User;
 import com.aac.backend.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -17,10 +17,9 @@ public class UserController {
 
     private final UserService userService;
 
-    // TODO: JWT 인증 구현 후 SecurityContext에서 userId 추출
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getMe(@RequestHeader("X-User-Id") Long userId) {
-        User user = userService.getUser(userId);
+        var user = userService.getUser(userId);
 
         return ResponseEntity.ok(UserResponse.from(user));
     }

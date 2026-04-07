@@ -1,9 +1,9 @@
-package com.aac.backend.controller.dto.request;
+package com.aac.backend.presentation.dto.request;
 
 import jakarta.validation.constraints.NotEmpty;
 
 import java.util.List;
 
 public record SentenceRequest(
-        @NotEmpty List<Long> wordIds
+        @NotEmpty List<WordRequest> words
 ) {}

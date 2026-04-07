@@ -1,3 +1,20 @@
 spring:
-  application:
-    name: backend
+  datasource:
+    url: jdbc:mysql://localhost:3306/aac
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      chat:
+        options:
+          model: gpt-4o
+          temperature: 0.3
+      embedding:
+        options:
+          model: text-embedding-3-small
