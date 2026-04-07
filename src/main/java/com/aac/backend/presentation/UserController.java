@@ -17,10 +17,9 @@ public class UserController {
 
     private final UserService userService;
 
-    // TODO: JWT 인증 구현 후 SecurityContext에서 userId 추출
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getMe(@RequestHeader("X-User-Id") Long userId) {
-        User user = userService.getUser(userId);
+        var user = userService.getUser(userId);
 
         return ResponseEntity.ok(UserResponse.from(user));
     }

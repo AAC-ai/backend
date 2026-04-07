@@ -1,13 +1,9 @@
 package com.aac.backend.global.exception;
 
-import java.time.LocalDateTime;
 
-public record ErrorResponse(
-        String code,
-        String message,
-        LocalDateTime timestamp
-) {
+public record ErrorResponse(int status, String message) {
+
     public static ErrorResponse of(ErrorCode errorCode) {
-        return new ErrorResponse(errorCode.getCode(), errorCode.getMessage(), LocalDateTime.now());
+        return new ErrorResponse(errorCode.getStatus().value(), errorCode.getMessage());
     }
 }

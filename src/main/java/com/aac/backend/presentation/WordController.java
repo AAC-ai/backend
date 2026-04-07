@@ -1,10 +1,8 @@
 package com.aac.backend.presentation;
 
+import com.aac.backend.infra.WordSentenceGenerator;
 import com.aac.backend.presentation.dto.request.SentenceRequest;
 import com.aac.backend.presentation.dto.response.SentenceResponse;
-import com.aac.backend.presentation.dto.response.WordResponse;
-import com.aac.backend.domain.Word;
-import com.aac.backend.service.WordService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,20 +15,11 @@ import java.util.List;
 @RequestMapping("/api/words")
 public class WordController {
 
-    private final WordService wordService;
-
-    @GetMapping
-    public ResponseEntity<List<WordResponse>> getWords(@RequestParam String category) {
-        List<Word> words = wordService.getWords(category);
-
-        return ResponseEntity.ok(words.stream()
-                .map(WordResponse::from)
-                .toList());
-    }
+    private final WordSentenceGenerator wordSentenceGenerator;
 
     @PostMapping("/sentence")
     public ResponseEntity<SentenceResponse> generateSentence(@Valid @RequestBody SentenceRequest request) {
-        String sentence = wordService.generateSentence(request);
+        var sentence = wordSentenceGenerator.generate(request.words());
 
         return ResponseEntity.ok(new SentenceResponse(sentence));
     }

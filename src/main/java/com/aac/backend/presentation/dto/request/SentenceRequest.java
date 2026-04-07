@@ -5,5 +5,5 @@ import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
 
 public record SentenceRequest(
-        @NotEmpty List<Long> wordIds
+        @NotEmpty List<WordRequest> words
 ) {}
