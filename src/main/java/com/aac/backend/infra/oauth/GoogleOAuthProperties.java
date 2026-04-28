@@ -9,7 +9,6 @@ public class GoogleOAuthProperties {
 
     private final String clientId;
     private final String clientSecret;
-    private final String authUri;
     private final String tokenUri;
     private final String userUri;
     private final String redirectUri;
@@ -19,7 +18,6 @@ public class GoogleOAuthProperties {
     public GoogleOAuthProperties(
             final String clientId,
             final String clientSecret,
-            final String authUri,
             final String tokenUri,
             final String userUri,
             final String redirectUri,
@@ -28,7 +26,6 @@ public class GoogleOAuthProperties {
     ) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
-        this.authUri = authUri;
         this.tokenUri = tokenUri;
         this.userUri = userUri;
         this.redirectUri = redirectUri;

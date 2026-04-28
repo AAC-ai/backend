@@ -35,14 +35,6 @@ public class GoogleOAuthClient {
         this.restClient = restClientBuilder.requestFactory(factory).build();
     }
 
-    public String getAuthorizationUrl() {
-        return properties.getAuthUri()
-                + "?client_id=" + properties.getClientId()
-                + "&redirect_uri=" + properties.getRedirectUri()
-                + "&response_type=code"
-                + "&scope=email%20profile";
-    }
-
     public GoogleUserInfoResponse getUserInfo(final String code) {
         String accessToken = requestAccessToken(code);
         return requestUserInfo(accessToken);
