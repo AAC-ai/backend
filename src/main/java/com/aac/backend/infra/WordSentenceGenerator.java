@@ -25,7 +25,7 @@ public class WordSentenceGenerator {
         var symbols = formatWords(wordRequests);
         log.info("symbols: {}", symbols);
 
-        List<Message> messages = new ArrayList<>();
+        var messages = new ArrayList<Message>();
         for (ConversationMessage msg : history) {
             messages.add(new UserMessage(msg.getUserInput()));
             messages.add(new AssistantMessage(msg.getAiResponse()));

@@ -2,11 +2,11 @@ package com.aac.backend.service;
 
 import com.aac.backend.domain.ConversationMessage;
 import com.aac.backend.domain.ConversationMessageRepository;
-import com.aac.backend.domain.User;
 import com.aac.backend.domain.UserRepository;
 import com.aac.backend.global.exception.BusinessException;
 import com.aac.backend.global.exception.ErrorCode;
 import com.aac.backend.infra.WordSentenceGenerator;
+import com.aac.backend.presentation.argumentresolver.LoginUser;
 import com.aac.backend.presentation.dto.request.WordRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,24 +18,27 @@ import java.util.List;
 @RequiredArgsConstructor
 public class WordService {
 
-    private static final Long FIXED_USER_ID = 1L;
-
     private final WordSentenceGenerator wordSentenceGenerator;
     private final ConversationMessageRepository conversationMessageRepository;
     private final UserRepository userRepository;
 
-    public String generateSentence(List<WordRequest> words) {
-        User user = userRepository.findById(FIXED_USER_ID)
-                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND));
+    @Transactional
+    public String generateSentence(List<WordRequest> words, LoginUser loginUser) {
+        var history = loginUser.userId()
+                .map(conversationMessageRepository::findTop10ByUserIdOrderByCreatedAtAsc)
+                .orElse(List.of());
 
-        List<ConversationMessage> history =
-                conversationMessageRepository.findTop10ByUserIdOrderByCreatedAtAsc(FIXED_USER_ID);
+        var sentence = wordSentenceGenerator.generate(words, history);
 
-        String sentence = wordSentenceGenerator.generate(words, history);
-
-        String userInput = wordSentenceGenerator.formatWords(words);
-        conversationMessageRepository.save(ConversationMessage.create(user, userInput, sentence));
+        loginUser.userId().ifPresent(id -> saveConversationHistory(id, words, sentence));
 
         return sentence;
+    }
+
+    private void saveConversationHistory(Long userId, List<WordRequest> words, String sentence) {
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND));
+        var userInput = wordSentenceGenerator.formatWords(words);
+        conversationMessageRepository.save(ConversationMessage.create(user, userInput, sentence));
     }
 }
