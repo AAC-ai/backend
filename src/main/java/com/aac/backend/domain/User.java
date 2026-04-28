@@ -21,12 +21,15 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private String name;
 
-    private User(String email, String name) {
+    private String profileImageUrl;
+
+    private User(String email, String name, String profileImageUrl) {
         this.email = email;
         this.name = name;
+        this.profileImageUrl = profileImageUrl;
     }
 
-    public static User create(String email, String name) {
-        return new User(email, name);
+    public static User create(String email, String name, String profileImageUrl) {
+        return new User(email, name, profileImageUrl);
     }
 }
