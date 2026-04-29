@@ -42,6 +42,12 @@ public class AuthService {
         return new TokenResponse(accessToken, refreshToken);
     }
 
+    @Transactional
+    public void logout(String refreshTokenValue) {
+        refreshTokenRepository.findByToken(refreshTokenValue)
+                .ifPresent(refreshTokenRepository::delete);
+    }
+
     private String issueAndSaveRefreshToken(Long userId) {
         var token = jwtProvider.issueRefreshToken();
         var expiresAt = jwtProvider.refreshExpiresAt();

@@ -3,6 +3,10 @@ spring:
     name: aac-backend
   profiles:
     active: local
+  config:
+    import:
+      - config/jwt.yml
+      - config/oidc.yml
   ai:
     openai:
       api-key: ${OPENAI_API_KEY}
@@ -17,8 +21,3 @@ cors:
   allowed-origins:
     - http://localhost:5173
     - http://127.0.0.1:5173
-
-jwt:
-  secret: ${JWT_SECRET}
-  expiration-ms: 3600000
-  refresh-expiration-ms: 1209600000
