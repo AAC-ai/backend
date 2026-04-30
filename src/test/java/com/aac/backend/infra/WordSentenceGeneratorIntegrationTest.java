@@ -84,11 +84,36 @@ class WordSentenceGeneratorIntegrationTest {
     }
 
     @Test
-    void 단어_순서가_뒤섞인_경우에도_자연스러운_문장을_생성한다() {
+    void 단어_10개_이상_조합도_문장으로_변환한다() {
         var words = List.of(
-                new WordRequest("행동", "먹고싶어"),
                 new WordRequest("감정", "배고파"),
-                new WordRequest("음식", "밥")
+                new WordRequest("감정", "피곤해"),
+                new WordRequest("음식", "밥"),
+                new WordRequest("음식", "물"),
+                new WordRequest("장소", "집"),
+                new WordRequest("장소", "학교"),
+                new WordRequest("행동", "가고싶어"),
+                new WordRequest("행동", "먹고싶어"),
+                new WordRequest("행동", "자고싶어"),
+                new WordRequest("사람", "엄마"),
+                new WordRequest("사람", "선생님")
+        );
+
+        var result = wordSentenceGenerator.generate(words, List.of());
+
+        System.out.println("생성된 문장: " + result);
+        assertThat(result).isNotBlank();
+    }
+
+    @Test
+    void 모순된_단어_여러개_조합도_문장을_생성한다() {
+        var words = List.of(
+                new WordRequest("행동", "가고싶어"),
+                new WordRequest("행동", "집에있고싶어"),
+                new WordRequest("감정", "좋아"),
+                new WordRequest("감정", "싫어"),
+                new WordRequest("장소", "병원"),
+                new WordRequest("장소", "집")
         );
 
         var result = wordSentenceGenerator.generate(words, List.of());
@@ -100,8 +125,8 @@ class WordSentenceGeneratorIntegrationTest {
     @Test
     void 부정_감정_단어도_문장으로_변환한다() {
         var words = List.of(
-                new WordRequest("감정", "아파"),
                 new WordRequest("신체", "머리"),
+                new WordRequest("감정", "아파"),
                 new WordRequest("행동", "싫어")
         );
 
@@ -112,34 +137,30 @@ class WordSentenceGeneratorIntegrationTest {
     }
 
     @Test
-    void 행동과_감정이_상충하는_경우에도_문장을_생성한다() {
-        var words = List.of(
-                new WordRequest("행동", "가고싶어"),
-                new WordRequest("감정", "싫어"),
-                new WordRequest("장소", "병원")
-        );
+    void 컨텍스트가_없으면_단어만으로_문장을_생성한다() {
+        var words = List.of(new WordRequest("감정", "무서워"));
 
         var result = wordSentenceGenerator.generate(words, List.of());
 
-        System.out.println("생성된 문장: " + result);
+        System.out.println("컨텍스트 없음: " + result);
         assertThat(result).isNotBlank();
     }
 
     @Test
-    void 이전_대화_컨텍스트가_있을_때_맥락을_반영한다() {
+    void 컨텍스트가_있으면_이전_장소_정보를_반영한다() {
         var history = List.of(
-                ConversationMessage.create(testUser, "[장소] 학교", "나 학교 가고 싶어.")
+                ConversationMessage.create(testUser, "[장소] 병원", "나 병원 가기 싫어.")
         );
-        var words = List.of(
-                new WordRequest("감정", "싫어")
-        );
+        var words = List.of(new WordRequest("감정", "무서워"));
 
         var withContext = wordSentenceGenerator.generate(words, history);
         var withoutContext = wordSentenceGenerator.generate(words, List.of());
 
         System.out.println("컨텍스트 있음: " + withContext);
         System.out.println("컨텍스트 없음: " + withoutContext);
+
+        // 컨텍스트 있을 때 병원 관련 맥락이 반영되는지 확인
         assertThat(withContext).isNotBlank();
-        assertThat(withoutContext).isNotBlank();
+        assertThat(withContext).containsIgnoringCase("병원");
     }
 }
