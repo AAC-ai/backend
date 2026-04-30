@@ -8,8 +8,10 @@ spring:
       - config/jwt.yml
       - config/oidc.yml
       - config/openai.yml
+      - config/db.yml
   ai:
     openai:
+      api-key: ${spring.ai.openai.api-key}
       chat:
         options:
           model: gpt-4o
@@ -17,6 +19,21 @@ spring:
       embedding:
         options:
           model: text-embedding-3-small
+jwt:
+  secret: ${jwt.secret}
+  expiration-ms: ${jwt.expiration-ms}
+  refresh-expiration-ms: ${jwt.refresh-expiration-ms}
+
+oidc:
+  google:
+    client-id: ${oidc.google.client-id}
+    client-secret: ${oidc.google.client-secret}
+    token-uri: ${oidc.google.token-uri}
+    user-uri: ${oidc.google.user-uri}
+    redirect-uri: ${oidc.google.redirect-uri}
+    connect-timeout: ${oidc.google.connect-timeout}
+    read-timeout: ${oidc.google.read-timeout}
+
 cors:
   allowed-origins:
     - http://localhost:5173

@@ -43,5 +43,15 @@ dependencies {
 }
 
 tasks.named('test') {
-    useJUnitPlatform()
+    useJUnitPlatform {
+        excludeTags 'ai'
+    }
+}
+
+tasks.register('aiTest', Test) {
+    useJUnitPlatform {
+        includeTags 'ai'
+    }
+    group = 'verification'
+    description = 'Run AI integration tests (requires API key)'
 }

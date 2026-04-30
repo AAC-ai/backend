@@ -1,10 +1,10 @@
 spring:
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${db.prod.url}
+    username: ${db.prod.username}
+    password: ${db.prod.password}
+    driver-class-name: ${db.prod.driver-class-name}
   jpa:
     hibernate:
-      ddl-auto: validate
-    show-sql: false
+      ddl-auto: ${db.prod.ddl-auto}
+    show-sql: ${db.prod.show-sql}
