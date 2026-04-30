@@ -53,7 +53,8 @@ class WordSentenceGeneratorIntegrationTest {
         var evaluator = new RelevancyEvaluator(chatClientBuilder);
         var response = evaluator.evaluate(new EvaluationRequest(userInput, sentence));
 
-        System.out.println("관련성 평가 결과: " + response.isPass() + ", 피드백: " + response.getFeedback());
+        System.out.println("생성된 문장: " + sentence);
+        System.out.println("관련성 평가 결과: " + response.isPass() + ", 점수: " + response.getScore());
         assertThat(response.isPass()).isTrue();
     }
 
