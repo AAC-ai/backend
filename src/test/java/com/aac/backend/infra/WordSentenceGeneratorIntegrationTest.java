@@ -1,5 +1,6 @@
 package com.aac.backend.infra;
 
+import com.aac.backend.domain.ConversationMessage;
 import com.aac.backend.presentation.dto.request.WordRequest;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -27,7 +28,7 @@ class WordSentenceGeneratorIntegrationTest {
                 new WordRequest("행동", "먹고싶어")
         );
 
-        var result = wordSentenceGenerator.generate(words);
+        var result = wordSentenceGenerator.generate(words, List.of());
 
         System.out.println("생성된 문장: " + result);
         assertThat(result).isNotBlank();
@@ -37,7 +38,7 @@ class WordSentenceGeneratorIntegrationTest {
     void 단일_단어도_문장으로_변환한다() {
         var words = List.of(new WordRequest("장소", "학교"));
 
-        var result = wordSentenceGenerator.generate(words);
+        var result = wordSentenceGenerator.generate(words, List.of());
 
         System.out.println("생성된 문장: " + result);
         assertThat(result).isNotBlank();
