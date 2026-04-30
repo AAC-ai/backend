@@ -5,7 +5,6 @@ import com.aac.backend.domain.RefreshTokenRepository;
 import com.aac.backend.global.exception.BusinessException;
 import com.aac.backend.global.exception.ErrorCode;
 import com.aac.backend.infra.jwt.JwtProvider;
-import com.aac.backend.presentation.dto.response.TokenResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,8 +16,10 @@ public class AuthService {
     private final JwtProvider jwtProvider;
     private final RefreshTokenRepository refreshTokenRepository;
 
+    public record AuthTokens(String accessToken, String refreshToken) {}
+
     @Transactional
-    public TokenResponse reissue(String refreshTokenValue) {
+    public AuthTokens reissue(String refreshTokenValue) {
         var refreshToken = refreshTokenRepository.findByToken(refreshTokenValue)
                 .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_REFRESH_TOKEN));
 
@@ -33,19 +34,13 @@ public class AuthService {
         var newAccessToken = jwtProvider.issue(userId);
         var newRefreshToken = issueAndSaveRefreshToken(userId);
 
-        return new TokenResponse(newAccessToken, newRefreshToken);
+        return new AuthTokens(newAccessToken, newRefreshToken);
     }
 
-    public TokenResponse issueTokens(Long userId) {
+    public AuthTokens issueTokens(Long userId) {
         var accessToken = jwtProvider.issue(userId);
         var refreshToken = issueAndSaveRefreshToken(userId);
-        return new TokenResponse(accessToken, refreshToken);
-    }
-
-    @Transactional
-    public void logout(String refreshTokenValue) {
-        refreshTokenRepository.findByToken(refreshTokenValue)
-                .ifPresent(refreshTokenRepository::delete);
+        return new AuthTokens(accessToken, refreshToken);
     }
 
     private String issueAndSaveRefreshToken(Long userId) {
