@@ -1,13 +1,13 @@
 spring:
   datasource:
-    url: ${db.local.url}
-    username: ${db.local.username}
-    password: ${db.local.password}
-    driver-class-name: ${db.local.driver-class-name}
+    url: jdbc:h2:mem:aac
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
   jpa:
     hibernate:
-      ddl-auto: ${db.local.ddl-auto}
-    show-sql: ${db.local.show-sql}
+      ddl-auto: update
+    show-sql: true
   h2:
     console:
       enabled: true
