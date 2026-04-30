@@ -23,13 +23,6 @@ public class AuthController {
     private final AuthService authService;
     private final GoogleAuthService googleAuthService;
 
-    @GetMapping("/google")
-    public ResponseEntity<Void> googleLogin() {
-        return ResponseEntity.status(302)
-                .location(URI.create(googleAuthService.getAuthorizationUrl()))
-                .build();
-    }
-
     @GetMapping("/google/callback")
     public ResponseEntity<ApiResponse<TokenResponse>> googleCallback(@RequestParam String code) {
         var tokens = googleAuthService.login(code);

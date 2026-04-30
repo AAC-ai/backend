@@ -16,16 +16,12 @@ public class GoogleAuthService {
     private final UserRepository userRepository;
     private final AuthService authService;
 
-    public String getAuthorizationUrl() {
-        return googleOAuthClient.getAuthorizationUrl();
-    }
-
     @Transactional
     public TokenResponse login(String code) {
         var userInfo = googleOAuthClient.getUserInfo(code);
         var user = userRepository.findByEmail(userInfo.email())
                 .orElseGet(() -> userRepository.save(
-                        User.create(userInfo.email(), userInfo.name(), userInfo.picture())
+                        User.create(userInfo.email(), userInfo.name())
                 ));
         return authService.issueTokens(user.getId());
     }
