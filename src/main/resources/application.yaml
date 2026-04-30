@@ -7,9 +7,9 @@ spring:
     import:
       - config/jwt.yml
       - config/oidc.yml
+      - config/openai.yml
   ai:
     openai:
-      api-key: ${OPENAI_API_KEY}
       chat:
         options:
           model: gpt-4o
