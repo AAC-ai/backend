@@ -3,7 +3,7 @@ package com.aac.backend.infra.oauth;
 import lombok.Getter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@ConfigurationProperties(prefix = "oauth.google")
+@ConfigurationProperties(prefix = "oidc.google")
 @Getter
 public class GoogleOAuthProperties {
 
