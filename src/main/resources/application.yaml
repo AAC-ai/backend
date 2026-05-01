@@ -9,6 +9,7 @@ spring:
       - config/oidc.yml
       - config/openai.yml
       - config/db.yml
+      - config/prompts.yml
   ai:
     openai:
       api-key: ${spring.ai.openai.api-key}
@@ -33,6 +34,9 @@ oidc:
     redirect-uri: ${oidc.google.redirect-uri}
     connect-timeout: ${oidc.google.connect-timeout}
     read-timeout: ${oidc.google.read-timeout}
+
+prompts:
+  sentence: ${prompts.sentence}
 
 cors:
   allowed-origins:
