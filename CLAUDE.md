@@ -1,70 +1,281 @@
-# CLAUDE.md — AAC Backend
+# CLAUDE.md - AAC Backend
 
-## GitHub 워크플로우
+## Role
 
-Claude가 이슈 생성부터 머지까지 전 과정을 대신 처리한다.
-사용자가 작업을 요청하면 아래 순서를 자동으로 수행하고, 각 단계 완료 시 링크를 보여준다.
+Claude is an implementation assistant for the AAC Backend repository.
 
-### 브랜치 전략
+Your primary job is to implement user requests in a way that fits the existing codebase, architecture, and team conventions. You may also help with GitHub issues, branches, commits, pushes, and pull requests when the user explicitly asks for that workflow.
 
-| 브랜치 | 역할 |
-|--------|------|
-| `main` | 프로덕션 배포 |
-| `develop` | 통합 브랜치 (PR 대상) |
-| `feat/<영어-kebab-case>` | 기능 개발 |
-| `fix/<영어-kebab-case>` | 버그 수정 |
-| `refactor/<영어-kebab-case>` | 리팩토링 |
+Keep changes small, focused, and reviewable. Do not modify unrelated files or logic.
 
-### 작업 순서
+## Instruction Priority
 
-1. **이슈 생성** — 작업 내용을 이슈로 등록한다.
-   ```
-   gh issue create --repo AAC-ai/backend \
-     --title "<제목>" \
-     --body "<설명>" \
-     --label "<label>"
-   ```
+Follow instructions in this order:
 
-2. **브랜치 생성** — `develop`에서 분기한다.
-   ```
-   git checkout develop && git pull
-   git checkout -b feat/<name>
-   ```
+1. Explicit instructions from the user in the current conversation
+2. Instructions in this file
+3. Existing repository structure, code patterns, and conventions
+4. General language and framework conventions
 
-3. **코드 작업** — 구현 후 커밋한다.
-   - 커밋 메시지 형식: `<type>: <한국어 설명> (#<이슈번호>)`
-   - type: `feat` / `fix` / `refactor` / `chore` / `docs` / `test`
+If instructions conflict and the conflict affects correctness, safety, data, security, or Git history, ask the user before proceeding.
 
-4. **푸시 및 PR 생성** — `develop` 브랜치로 PR을 연다.
-   ```
-   git push -u origin <브랜치명>
-   gh pr create --repo AAC-ai/backend \
-     --base develop \
-     --title "<type>: <설명>" \
-     --body "..."
-   ```
-   PR 본문에는 **관련 이슈 번호** (`Closes #<N>`)를 반드시 포함한다.
+## GitHub Workflow
 
-5. **머지** — 사용자가 명시적으로 머지를 요청할 때만 수행한다.
-   ```
-   gh pr merge <PR번호> --repo AAC-ai/backend --squash --delete-branch
-   ```
+Create GitHub issues, branches, commits, pushes, and pull requests only when the user explicitly asks for the GitHub workflow.
 
-### PR 본문 템플릿
+Examples of explicit requests:
 
-```markdown
-## 작업 내용
-- <변경 사항 요약>
+- "Create an issue and PR for this"
+- "Start from an issue and open a PR"
+- "Create a branch and work on this"
+- "Follow the GitHub workflow"
+- "Make a PR"
 
-## 변경 이유
-<왜 이 변경이 필요한지>
+For simple code changes, analysis, review, or explanation requests, do not change GitHub state.
 
-Closes #<이슈번호>
+After each GitHub step, report the created issue link, branch name, PR link, or relevant status.
+
+## Branch Strategy
+
+| Branch | Purpose |
+|--------|---------|
+| `main` | Production deployment |
+| `develop` | Integration branch and default PR base |
+| `feat/<english-kebab-case>` | Feature work |
+| `fix/<english-kebab-case>` | Bug fixes |
+| `refactor/<english-kebab-case>` | Refactoring |
+
+Create work branches from `develop` by default.
+
+Branch names must use English kebab-case.
+
+Examples:
+
+```text
+feat/add-user-profile
+fix/login-token-expiry
+refactor/payment-service
 ```
 
-### 규칙
+## Before Starting Work
 
-- 머지는 사용자가 "머지해줘" / "merge해줘"라고 명시적으로 요청한 경우에만 실행한다. 자동으로 머지하지 않는다.
-- `main`으로 직접 push하지 않는다. 항상 `develop` 경유.
-- force push 금지.
-- PR은 항상 이슈와 연결(`Closes #N`)한다.
+Before changing files, inspect the repository state.
+
+- Check the current branch.
+- Run `git status`.
+- Do not revert user or teammate changes.
+- Do not touch unrelated changes.
+- If existing changes may conflict with the requested work, ask the user before proceeding.
+
+Before creating a branch, committing, pushing, or opening a PR, check the worktree state again.
+
+## Implementation Principles
+
+- Follow the existing architecture and code style.
+- Reuse existing utilities, services, DTOs, test helpers, and local patterns before creating new ones.
+- Keep the diff limited to what the request actually needs.
+- Do not perform unrelated refactors, formatting changes, or file moves.
+- Add new dependencies only when clearly necessary.
+- Add new abstractions only when they reduce real duplication or complexity.
+- Prefer the smallest maintainable change over a speculative redesign.
+- Follow existing patterns for error handling, logging, validation, and configuration.
+
+## Testing And Verification
+
+When behavior changes, add or update relevant tests.
+
+After implementation, run the smallest relevant verification for the change.
+
+Use the repository's actual test, lint, and build commands. Check files such as `build.gradle`, `gradlew`, `pom.xml`, `package.json`, `README`, or CI configuration when unsure.
+
+Common examples:
+
+```bash
+./gradlew test
+./gradlew build
+mvn test
+npm test
+npm run lint
+npm run build
+```
+
+If tests or builds cannot be run, report the reason and the remaining risk.
+
+## Security And Sensitive Data
+
+Never commit or include the following in a PR:
+
+- API keys
+- Access tokens
+- Refresh tokens
+- Secrets
+- Passwords
+- Private keys
+- `.env` files
+- Local configuration files
+- Personal data
+- Sensitive logs
+
+For changes involving authentication, authorization, personal data, payment, tokens, sessions, or credentials, explicitly mention the risk even if the code change is small.
+
+## Database And Migrations
+
+If a schema change is required, include the appropriate migration.
+
+For migration work, consider:
+
+- Impact on existing data
+- Rollback strategy
+- Nullability
+- Default values
+- Indexes and constraints
+- Deployment order
+
+Do not perform destructive database changes without explicit user approval.
+
+Do not run commands that directly affect production data.
+
+## API Changes
+
+When request or response schemas change, update the related code and tests.
+
+Check related areas such as:
+
+- DTOs
+- Validation
+- Serializers or mappers
+- Controllers and services
+- Tests
+- API documentation or examples
+
+Mark changes as breaking when they may break existing clients.
+
+Follow the existing project pattern for error responses.
+
+## Commit Rules
+
+Create commits only when the user explicitly asks for a commit or asks for the GitHub workflow.
+
+Commit message format:
+
+```text
+<type>: <Korean summary> (#<issue-number>)
+```
+
+Allowed types:
+
+- `feat`
+- `fix`
+- `refactor`
+- `chore`
+- `docs`
+- `test`
+
+Examples:
+
+```text
+feat: 사용자 프로필 조회 API 추가 (#123)
+fix: 만료된 토큰 처리 오류 수정 (#124)
+```
+
+Before committing, review changed files and make sure unrelated changes are not included.
+
+## PR Rules
+
+Open PRs against `develop` by default.
+
+Every PR must include the related issue number when an issue exists.
+
+PR title format:
+
+```text
+<type>: <Korean summary>
+```
+
+PR body template:
+
+```md
+## 작업 내용
+- <summary of changes>
+
+## 변경 이유
+<why this change is needed>
+
+## 테스트
+- <tests or checks run>
+
+Closes #<issue-number>
+```
+
+After creating a PR, report the PR link to the user.
+
+## Merge Rules
+
+Merge a PR only when the user explicitly asks for it.
+
+Allowed merge requests include:
+
+- "머지해줘"
+- "merge해줘"
+- "Merge this PR"
+- "이 PR 머지해줘"
+
+Use squash merge by default:
+
+```bash
+gh pr merge <PR-number> --repo AAC-ai/backend --squash --delete-branch
+```
+
+Never merge automatically.
+
+## Forbidden Actions
+
+Do not perform these actions without explicit user approval:
+
+- Push directly to `main`
+- Force push
+- Automatically merge a PR
+- Modify unrelated files
+- Revert user or teammate changes
+- Run destructive Git commands
+- Add or remove dependencies
+- Perform destructive database migrations
+- Run commands that affect production data
+- Commit secrets, tokens, credentials, personal data, or sensitive logs
+- Format the whole project or unrelated files
+
+Do not run these commands unless the user explicitly requests them:
+
+```bash
+git reset --hard
+git clean -fd
+git push --force
+git push --force-with-lease
+```
+
+## Completion Report
+
+When the work is complete, report briefly and concretely.
+
+Use this format:
+
+```md
+## Summary
+- <what changed>
+
+## Changed Files
+- `<path>`
+
+## Verification
+- `<command>`: passed/failed
+- If not run, explain why
+
+## Links
+- Issue: <link or none>
+- PR: <link or none>
+
+## Remaining Risk
+- <risk or "None">
+```
+
+Avoid long explanations. Ask questions only when the user needs to make a decision.
