@@ -1,8 +1,7 @@
 package com.aac.backend.presentation;
 
-import com.aac.backend.presentation.cookie.RefreshTokenCookieProvider;
+import com.aac.backend.presentation.cookie.TokenCookieProvider;
 import com.aac.backend.presentation.dto.response.ApiResponse;
-import com.aac.backend.presentation.dto.response.TokenResponse;
 import com.aac.backend.service.AuthService;
 import com.aac.backend.service.GoogleAuthService;
 import lombok.RequiredArgsConstructor;
@@ -22,30 +21,36 @@ public class AuthController {
 
     private final AuthService authService;
     private final GoogleAuthService googleAuthService;
-    private final RefreshTokenCookieProvider cookieProvider;
+    private final TokenCookieProvider cookieProvider;
 
     @GetMapping("/google/callback")
-    public ResponseEntity<ApiResponse<TokenResponse>> googleCallback(@RequestParam String code) {
+    public ResponseEntity<ApiResponse<Void>> googleCallback(@RequestParam String code) {
         var tokens = googleAuthService.login(code);
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookieProvider.createCookie(tokens.refreshToken()).toString())
-                .body(ApiResponse.success(new TokenResponse(tokens.accessToken())));
+                .header(HttpHeaders.SET_COOKIE,
+                        cookieProvider.createAccessTokenCookie(tokens.accessToken()).toString(),
+                        cookieProvider.createRefreshTokenCookie(tokens.refreshToken()).toString())
+                .body(ApiResponse.success(null));
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<ApiResponse<TokenResponse>> reissue(
-            @CookieValue(RefreshTokenCookieProvider.REFRESH_TOKEN_COOKIE) String refreshToken
+    public ResponseEntity<ApiResponse<Void>> reissue(
+            @CookieValue(TokenCookieProvider.REFRESH_TOKEN_COOKIE) String refreshToken
     ) {
         var tokens = authService.reissue(refreshToken);
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookieProvider.createCookie(tokens.refreshToken()).toString())
-                .body(ApiResponse.success(new TokenResponse(tokens.accessToken())));
+                .header(HttpHeaders.SET_COOKIE,
+                        cookieProvider.createAccessTokenCookie(tokens.accessToken()).toString(),
+                        cookieProvider.createRefreshTokenCookie(tokens.refreshToken()).toString())
+                .body(ApiResponse.success(null));
     }
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout() {
         return ResponseEntity.noContent()
-                .header(HttpHeaders.SET_COOKIE, cookieProvider.clearCookie().toString())
+                .header(HttpHeaders.SET_COOKIE,
+                        cookieProvider.clearAccessTokenCookie().toString(),
+                        cookieProvider.clearRefreshTokenCookie().toString())
                 .build();
     }
 }
