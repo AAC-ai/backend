@@ -29,7 +29,7 @@ public class TokenCookieProvider {
         return ResponseCookie.from(name, value)
                 .httpOnly(true)
                 .secure(true)
-                .sameSite("None")
+                .sameSite("Lax")
                 .path(path)
                 .build();
     }
@@ -38,7 +38,7 @@ public class TokenCookieProvider {
         return ResponseCookie.from(name, "")
                 .httpOnly(true)
                 .secure(true)
-                .sameSite("None")
+                .sameSite("Lax")
                 .path(path)
                 .maxAge(0)
                 .build();
