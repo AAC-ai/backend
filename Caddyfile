@@ -1,0 +1,11 @@
+{$DOMAIN} {
+    handle /api/* {
+        reverse_proxy was:8080
+    }
+
+    handle {
+        root * /srv/frontend
+        try_files {path} /index.html
+        file_server
+    }
+}
