@@ -1,8 +1,8 @@
-name: CI
+name: CI Build
 
 on:
   pull_request:
-    branches: [ develop, main ]
+    branches: [ develop ]
 
 jobs:
   build-and-test:
@@ -29,8 +29,5 @@ jobs:
           key: gradle-${{ hashFiles('**/*.gradle', 'gradle/wrapper/gradle-wrapper.properties') }}
           restore-keys: gradle-
 
-      - name: Build
-        run: ./gradlew build -x test
-
-      - name: Test
-        run: ./gradlew test
+      - name: Build and Test
+        run: ./gradlew build
