@@ -13,7 +13,7 @@ services:
       - was
 
   was:
-    build: .
+    image: aac-ai/backend:latest
     expose:
       - "8080"
     environment:

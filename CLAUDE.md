@@ -19,6 +19,33 @@ Follow instructions in this order:
 
 If instructions conflict and the conflict affects correctness, safety, data, security, or Git history, ask the user before proceeding.
 
+## Before Starting Any Work
+
+Before writing any code or running any command, explicitly state your understanding of the task and ask for confirmation if anything is unclear.
+
+Do not assume. Do not guess. Ask first.
+
+Examples of when to ask:
+- The request is vague or missing details ("CI 구성해줘" without specifying what CI should do)
+- The scope is unclear (which files, which environments, which steps)
+- Multiple approaches are possible and the user hasn't chosen one
+
+## Git Command Rules
+
+Never run any git or gh command without explicit user approval in the current conversation.
+
+This includes:
+- `git commit`
+- `git push`
+- `git checkout -b`
+- `git merge`
+- `git reset`
+- `gh issue create`
+- `gh pr create`
+- `gh pr merge`
+
+Only run a git/gh command when the user explicitly says to (e.g. "커밋해줘", "브랜치 만들어줘", "이슈 생성해줘").
+
 ## GitHub Workflow
 
 Create GitHub issues, branches, commits, pushes, and pull requests only when the user explicitly asks for the GitHub workflow.
