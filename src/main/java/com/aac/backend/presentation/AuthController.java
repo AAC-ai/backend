@@ -6,6 +6,7 @@ import com.aac.backend.service.AuthService;
 import com.aac.backend.service.GoogleAuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.net.URI;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,14 +26,22 @@ public class AuthController {
     private final GoogleAuthService googleAuthService;
     private final TokenCookieProvider cookieProvider;
 
+    @GetMapping("/google")
+    public ResponseEntity<Void> redirectToGoogle() {
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .location(URI.create(googleAuthService.getAuthorizationUrl()))
+                .build();
+    }
+
     @GetMapping("/google/callback")
-    public ResponseEntity<ApiResponse<Void>> googleCallback(@RequestParam String code) {
+    public ResponseEntity<Void> googleCallback(@RequestParam String code) {
         var tokens = googleAuthService.login(code);
-        return ResponseEntity.ok()
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .location(URI.create(googleAuthService.getSuccessRedirectUri()))
                 .header(HttpHeaders.SET_COOKIE,
                         cookieProvider.createAccessTokenCookie(tokens.accessToken()).toString(),
                         cookieProvider.createRefreshTokenCookie(tokens.refreshToken()).toString())
-                .body(ApiResponse.success(null));
+                .build();
     }
 
     @PostMapping("/refresh")

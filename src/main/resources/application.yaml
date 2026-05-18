@@ -29,9 +29,11 @@ oidc:
   google:
     client-id: ${oidc.google.client-id}
     client-secret: ${oidc.google.client-secret}
+    authorization-uri: ${oidc.google.authorization-uri}
     token-uri: ${oidc.google.token-uri}
     user-uri: ${oidc.google.user-uri}
     redirect-uri: ${oidc.google.redirect-uri}
+    success-redirect-uri: ${oidc.google.success-redirect-uri}
     connect-timeout: ${oidc.google.connect-timeout}
     read-timeout: ${oidc.google.read-timeout}
 
