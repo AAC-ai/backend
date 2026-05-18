@@ -1,4 +1,4 @@
-aaco.kr, api.aaco.kr {
+aaco.kr, www.aaco.kr, api.aaco.kr {
     handle /api/* {
         reverse_proxy was:8080
     }
