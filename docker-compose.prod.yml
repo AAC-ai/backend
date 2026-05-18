@@ -13,7 +13,7 @@ services:
       - was
 
   was:
-    image: aac-ai/backend:latest
+    image: accoknu/backend:latest
     expose:
       - "8080"
     environment:
