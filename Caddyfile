@@ -1,4 +1,4 @@
-{$DOMAIN} {
+aaco.kr, api.aaco.kr {
     handle /api/* {
         reverse_proxy was:8080
     }
