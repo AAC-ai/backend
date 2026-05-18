@@ -1,0 +1,26 @@
+services:
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./frontend:/srv/frontend:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - was
+
+  was:
+    image: accoknu/backend:latest
+    expose:
+      - "8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    volumes:
+      - ./src/main/resources/config:/app/config:ro
+
+volumes:
+  caddy_data:
+  caddy_config:

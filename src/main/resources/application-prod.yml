@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    url: ${db.prod.url}
+    username: ${db.prod.username}
+    password: ${db.prod.password}
+    driver-class-name: ${db.prod.driver-class-name}
+  jpa:
+    hibernate:
+      ddl-auto: ${db.prod.ddl-auto}
+    show-sql: ${db.prod.show-sql}
