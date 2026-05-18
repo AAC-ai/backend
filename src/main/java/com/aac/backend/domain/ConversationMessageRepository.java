@@ -2,9 +2,12 @@ package com.aac.backend.domain;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ConversationMessageRepository extends JpaRepository<ConversationMessage, Long> {
 
     List<ConversationMessage> findTop10ByUserIdOrderByCreatedAtAsc(Long userId);
+
+    boolean existsByUserIdAndCreatedAtAfter(Long userId, LocalDateTime threshold);
 }

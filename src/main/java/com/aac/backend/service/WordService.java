@@ -12,11 +12,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class WordService {
+
+    private static final int SESSION_EXPIRY_HOURS = 4;
 
     private final WordSentenceGenerator wordSentenceGenerator;
     private final ConversationMessageRepository conversationMessageRepository;
@@ -25,6 +28,7 @@ public class WordService {
     @Transactional
     public String generateSentence(List<WordRequest> words, LoginUser loginUser) {
         var history = loginUser.userId()
+                .filter(this::isSessionAlive)
                 .map(conversationMessageRepository::findTop10ByUserIdOrderByCreatedAtAsc)
                 .orElse(List.of());
 
@@ -33,6 +37,11 @@ public class WordService {
         loginUser.userId().ifPresent(id -> saveConversationHistory(id, words, sentence));
 
         return sentence;
+    }
+
+    private boolean isSessionAlive(Long userId) {
+        var threshold = LocalDateTime.now().minusHours(SESSION_EXPIRY_HOURS);
+        return conversationMessageRepository.existsByUserIdAndCreatedAtAfter(userId, threshold);
     }
 
     private void saveConversationHistory(Long userId, List<WordRequest> words, String sentence) {
