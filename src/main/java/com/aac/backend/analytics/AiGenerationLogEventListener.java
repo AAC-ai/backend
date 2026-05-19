@@ -35,7 +35,7 @@ public class AiGenerationLogEventListener {
 
             var generationLog = result.success()
                     ? AiGenerationLog.success(event.traceId(), words.size(), selectedWords, result.model(), result.latencyMs(), contextMessages,
-                            result.promptTokens(), result.completionTokens(), result.totalTokens())
+                            result.promptTokens(), result.completionTokens(), result.totalTokens(), result.contextSummary())
                     : AiGenerationLog.failure(event.traceId(), words.size(), selectedWords, result.model(), result.latencyMs(), contextMessages, result.failureReason());
 
             aiGenerationLogRepository.save(generationLog);

@@ -37,12 +37,12 @@ public class WordSentenceGenerator {
         var symbols = formatWords(wordRequests);
         log.info("symbols: {}", symbols);
 
-        var contextualPrompt = buildSystemPrompt(history, symbols);
+        var summarizedPrompt = buildSystemPrompt(history, symbols);
 
         var start = System.currentTimeMillis();
         try {
             var response = chatClient.prompt()
-                    .system(contextualPrompt)
+                    .system(summarizedPrompt.prompt())
                     .user(symbols)
                     .options(OpenAiChatOptions.builder().N(candidateCount).build())
                     .call()
@@ -65,7 +65,8 @@ public class WordSentenceGenerator {
 
             return GenerationResult.success(
                     best, model, latencyMs,
-                    usage.getPromptTokens(), usage.getCompletionTokens(), usage.getTotalTokens()
+                    usage.getPromptTokens(), usage.getCompletionTokens(), usage.getTotalTokens(),
+                    summarizedPrompt.contextSummary()
             );
         } catch (Exception e) {
             var latencyMs = System.currentTimeMillis() - start;
@@ -74,13 +75,16 @@ public class WordSentenceGenerator {
         }
     }
 
-    private String buildSystemPrompt(List<ConversationMessage> history, String symbols) {
+    private SummarizedPrompt buildSystemPrompt(List<ConversationMessage> history, String symbols) {
         var summary = contextSummarizer.summarize(history, symbols);
         if (summary.isEmpty()) {
-            return systemPrompt;
+            return new SummarizedPrompt(systemPrompt, null);
         }
-        return systemPrompt + "\n\n현재 상황: " + summary.get() + "\n이 상황을 고려하여 문장을 생성하세요.";
+        var prompt = systemPrompt + "\n\n현재 상황: " + summary.get() + "\n이 상황을 고려하여 문장을 생성하세요.";
+        return new SummarizedPrompt(prompt, summary.get());
     }
+
+    private record SummarizedPrompt(String prompt, String contextSummary) {}
 
     public String formatWords(List<WordRequest> words) {
         return words.stream()

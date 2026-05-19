@@ -8,15 +8,18 @@ public record GenerationResult(
         String failureReason,
         Integer promptTokens,
         Integer completionTokens,
-        Integer totalTokens
+        Integer totalTokens,
+        String contextSummary
 ) {
 
     public static GenerationResult success(String sentence, String model, long latencyMs,
-                                           Integer promptTokens, Integer completionTokens, Integer totalTokens) {
-        return new GenerationResult(sentence, model, latencyMs, true, null, promptTokens, completionTokens, totalTokens);
+                                           Integer promptTokens, Integer completionTokens, Integer totalTokens,
+                                           String contextSummary) {
+        return new GenerationResult(sentence, model, latencyMs, true, null,
+                promptTokens, completionTokens, totalTokens, contextSummary);
     }
 
     public static GenerationResult failure(String model, long latencyMs, String failureReason) {
-        return new GenerationResult(null, model, latencyMs, false, failureReason, null, null, null);
+        return new GenerationResult(null, model, latencyMs, false, failureReason, null, null, null, null);
     }
 }
