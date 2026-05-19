@@ -163,6 +163,7 @@ class SentenceQualityEvalTest {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
     record EvalCase(int id, int symbolCount, List<HistoryEntry> history, List<WordEntry> words, String referenceAnswer) {}
 
     record HistoryEntry(String userInput, String aiResponse) {}
