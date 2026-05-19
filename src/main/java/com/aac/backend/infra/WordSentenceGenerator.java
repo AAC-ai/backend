@@ -18,18 +18,18 @@ public class WordSentenceGenerator {
     private final ChatClient chatClient;
     private final SentenceReranker sentenceReranker;
     private final ConversationContextSummarizer contextSummarizer;
-    private final String systemPrompt;
+    private final PromptRouter promptRouter;
     private final int candidateCount;
 
     public WordSentenceGenerator(ChatClient chatClient,
                                  SentenceReranker sentenceReranker,
                                  ConversationContextSummarizer contextSummarizer,
-                                 @Value("${prompts.sentence}") String systemPrompt,
+                                 PromptRouter promptRouter,
                                  @Value("${generation.candidates:3}") int candidateCount) {
         this.chatClient = chatClient;
         this.sentenceReranker = sentenceReranker;
         this.contextSummarizer = contextSummarizer;
-        this.systemPrompt = systemPrompt;
+        this.promptRouter = promptRouter;
         this.candidateCount = candidateCount;
     }
 
@@ -37,7 +37,7 @@ public class WordSentenceGenerator {
         var symbols = formatWords(wordRequests);
         log.info("symbols: {}", symbols);
 
-        var summarizedPrompt = buildSystemPrompt(history, symbols);
+        var summarizedPrompt = buildSystemPrompt(wordRequests, history, symbols);
 
         var start = System.currentTimeMillis();
         try {
@@ -75,12 +75,13 @@ public class WordSentenceGenerator {
         }
     }
 
-    private SummarizedPrompt buildSystemPrompt(List<ConversationMessage> history, String symbols) {
+    private SummarizedPrompt buildSystemPrompt(List<WordRequest> words, List<ConversationMessage> history, String symbols) {
+        var basePrompt = promptRouter.route(words);
         var summary = contextSummarizer.summarize(history, symbols);
         if (summary.isEmpty()) {
-            return new SummarizedPrompt(systemPrompt, null);
+            return new SummarizedPrompt(basePrompt, null);
         }
-        var prompt = systemPrompt + "\n\n현재 상황: " + summary.get() + "\n이 상황을 고려하여 문장을 생성하세요.";
+        var prompt = basePrompt + "\n\n현재 상황: " + summary.get() + "\n이 상황을 고려하여 문장을 생성하세요.";
         return new SummarizedPrompt(prompt, summary.get());
     }
 
