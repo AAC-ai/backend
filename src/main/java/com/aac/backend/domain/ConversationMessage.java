@@ -8,7 +8,10 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Table(name = "conversation_messages")
+@Table(
+        name = "conversation_messages",
+        indexes = @Index(name = "idx_conversation_messages_user_created", columnList = "user_id, created_at")
+)
 public class ConversationMessage extends BaseEntity {
 
     @Id

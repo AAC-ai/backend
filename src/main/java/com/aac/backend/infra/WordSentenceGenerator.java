@@ -4,8 +4,6 @@ import com.aac.backend.domain.ConversationMessage;
 import com.aac.backend.presentation.dto.request.WordRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.openai.OpenAiChatOptions;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -16,21 +14,15 @@ import java.util.stream.Collectors;
 public class WordSentenceGenerator {
 
     private final ChatClient chatClient;
-    private final SentenceReranker sentenceReranker;
     private final ConversationContextSummarizer contextSummarizer;
     private final PromptRouter promptRouter;
-    private final int candidateCount;
 
     public WordSentenceGenerator(ChatClient chatClient,
-                                 SentenceReranker sentenceReranker,
                                  ConversationContextSummarizer contextSummarizer,
-                                 PromptRouter promptRouter,
-                                 @Value("${generation.candidates:3}") int candidateCount) {
+                                 PromptRouter promptRouter) {
         this.chatClient = chatClient;
-        this.sentenceReranker = sentenceReranker;
         this.contextSummarizer = contextSummarizer;
         this.promptRouter = promptRouter;
-        this.candidateCount = candidateCount;
     }
 
     public GenerationResult generate(List<WordRequest> wordRequests, List<ConversationMessage> history) {
@@ -44,27 +36,21 @@ public class WordSentenceGenerator {
             var response = chatClient.prompt()
                     .system(summarizedPrompt.prompt())
                     .user(symbols)
-                    .options(OpenAiChatOptions.builder().N(candidateCount).build())
                     .call()
                     .chatResponse();
 
             var latencyMs = System.currentTimeMillis() - start;
             var model = response.getMetadata().getModel();
             var usage = response.getMetadata().getUsage();
+            var sentence = response.getResult().getOutput().getText();
 
-            var candidates = response.getResults().stream()
-                    .map(g -> g.getOutput().getText())
-                    .toList();
-
-            log.info("model: {}, latency: {}ms, tokens - prompt: {}, completion: {}, total: {}, candidates: {}",
+            log.info("model: {}, latency: {}ms, tokens - prompt: {}, completion: {}, total: {}, sentence: {}",
                     model, latencyMs,
                     usage.getPromptTokens(), usage.getCompletionTokens(), usage.getTotalTokens(),
-                    candidates);
-
-            var best = sentenceReranker.rerank(candidates, symbols);
+                    sentence);
 
             return GenerationResult.success(
-                    best, model, latencyMs,
+                    sentence, model, latencyMs,
                     usage.getPromptTokens(), usage.getCompletionTokens(), usage.getTotalTokens(),
                     summarizedPrompt.contextSummary()
             );

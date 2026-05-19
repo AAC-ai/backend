@@ -264,10 +264,20 @@
     "referenceAnswer": "엄마랑 밥 먹고 싶어."
   },
   {
+    "id": 27,
+    "symbolCount": 1,
+    "history": [
+      { "userInput": "[장소] 학교, [행동] 가고싶어", "aiResponse": "나 학교 가고 싶어." }
+    ],
+    "words": [
+      { "category": "행동", "label": "먹고싶어" }
+    ],
+    "referenceAnswer": "거기서 급식 먹고 싶어."
+  },
+  {
     "id": 26,
     "symbolCount": 1,
-    "description": "무관한 컨텍스트 배제 검증: 음식 3턴 이후 무관한 물건(공책) 요청 — 이전 대화가 반영되지 않아야 함",
-    "history": [
+"history": [
       { "userInput": "[음식] 물, [행동] 먹고싶어", "aiResponse": "나 물 마시고 싶어." },
       { "userInput": "[음식] 라면, [행동] 먹고싶어", "aiResponse": "나 라면 먹고 싶어." },
       { "userInput": "[음식] 사과, [행동] 먹고싶어", "aiResponse": "나 사과 먹고 싶어." }

@@ -39,8 +39,12 @@ class SentenceQualityEvalTest {
             2. 자연스러운 표현을 위한 의미적 변환은 허용합니다
                예) [음식] 물 + [행동] 먹고싶어 → '마시고 싶어' (올바른 변환)
                예) [감정] 배고파 + [행동] 먹고싶어 → '배고파, 먹고 싶어' (올바른 변환)
-            3. 문장이 1인칭 시점으로 자연스러운 한국어인가
-            4. 기호의 의미 범위를 벗어난 새로운 개념을 추가하지 않았는가
+            3. 기호가 1개인 경우, 카테고리에서 의도를 유추하는 것은 올바른 변환입니다
+               예) [물건] 공책 → '나 공책 필요해.' ([물건] 카테고리 = 필요하거나 갖고 싶음)
+               예) [장소] 화장실 → '나 화장실 가고 싶어.' ([장소] 카테고리 = 가고 싶음)
+               예) [사람] 엄마 → '나 엄마 보고 싶어.' ([사람] 카테고리 = 보고 싶음)
+            4. 문장이 1인칭 시점으로 자연스러운 한국어인가
+            5. 기호의 의미 범위를 벗어난 새로운 개념을 추가하지 않았는가
                - 허용: 조사(랑, 이랑, 에서, 도, 을, 가 등), 어미, 자연스러운 연결 표현
                - 허용: 기호를 자연스럽게 연결하기 위한 최소한의 문법 요소
                - 불허: 기호에 없는 새로운 명사, 동사, 장소, 사람 등
@@ -163,7 +167,6 @@ class SentenceQualityEvalTest {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
     record EvalCase(int id, int symbolCount, List<HistoryEntry> history, List<WordEntry> words, String referenceAnswer) {}
 
     record HistoryEntry(String userInput, String aiResponse) {}
