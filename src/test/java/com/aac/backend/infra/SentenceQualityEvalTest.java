@@ -1,6 +1,8 @@
 package com.aac.backend.infra;
 
+import com.aac.backend.domain.ConversationMessage;
 import com.aac.backend.presentation.dto.request.WordRequest;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -14,8 +16,10 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
@@ -73,8 +77,9 @@ class SentenceQualityEvalTest {
                 .map(w -> new WordRequest(w.category(), w.label()))
                 .toList();
         var symbols = wordSentenceGenerator.formatWords(words);
+        var history = buildHistory(evalCase.history());
 
-        var result = wordSentenceGenerator.generate(words, List.of());
+        var result = wordSentenceGenerator.generate(words, history);
 
         if (!result.success()) {
             results.add(CaseResult.failure(evalCase, symbols, result.failureReason()));
@@ -96,6 +101,20 @@ class SentenceQualityEvalTest {
                 .as("id=%d: %s\n  기호: %s\n  문장: %s",
                         evalCase.id(), evalResult.reason(), symbols, result.sentence())
                 .isTrue();
+    }
+
+    private List<ConversationMessage> buildHistory(List<HistoryEntry> entries) throws Exception {
+        if (entries == null || entries.isEmpty()) return List.of();
+        Constructor<ConversationMessage> ctor = ConversationMessage.class.getDeclaredConstructor();
+        ctor.setAccessible(true);
+        var result = new ArrayList<ConversationMessage>();
+        for (var entry : entries) {
+            var msg = ctor.newInstance();
+            ReflectionTestUtils.setField(msg, "userInput", entry.userInput());
+            ReflectionTestUtils.setField(msg, "aiResponse", entry.aiResponse());
+            result.add(msg);
+        }
+        return result;
     }
 
     private EvalResult evaluate(String symbols, String sentence) throws Exception {
@@ -176,7 +195,10 @@ class SentenceQualityEvalTest {
         log.info("==================================");
     }
 
-    record EvalCase(int id, int symbolCount, List<WordEntry> words, String referenceAnswer) {}
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    record EvalCase(int id, int symbolCount, List<HistoryEntry> history, List<WordEntry> words, String referenceAnswer) {}
+
+    record HistoryEntry(String userInput, String aiResponse) {}
 
     record WordEntry(String category, String label) {}
 
