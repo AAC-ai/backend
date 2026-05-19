@@ -1,0 +1,266 @@
+[
+  {
+    "id": 1,
+    "symbolCount": 1,
+    "words": [
+      { "category": "감정", "label": "배고파" }
+    ],
+    "referenceAnswer": "나 배고파."
+  },
+  {
+    "id": 2,
+    "symbolCount": 1,
+    "words": [
+      { "category": "행동", "label": "쉬고싶어" }
+    ],
+    "referenceAnswer": "나 쉬고 싶어."
+  },
+  {
+    "id": 3,
+    "symbolCount": 1,
+    "words": [
+      { "category": "감정", "label": "아파" }
+    ],
+    "referenceAnswer": "나 아파."
+  },
+  {
+    "id": 4,
+    "symbolCount": 2,
+    "words": [
+      { "category": "음식", "label": "물" },
+      { "category": "행동", "label": "먹고싶어" }
+    ],
+    "referenceAnswer": "나 물 마시고 싶어."
+  },
+  {
+    "id": 5,
+    "symbolCount": 2,
+    "words": [
+      { "category": "장소", "label": "화장실" },
+      { "category": "행동", "label": "가고싶어" }
+    ],
+    "referenceAnswer": "나 화장실 가고 싶어."
+  },
+  {
+    "id": 6,
+    "symbolCount": 2,
+    "words": [
+      { "category": "사람", "label": "엄마" },
+      { "category": "행동", "label": "보고싶어" }
+    ],
+    "referenceAnswer": "나 엄마 보고 싶어."
+  },
+  {
+    "id": 7,
+    "symbolCount": 2,
+    "words": [
+      { "category": "감정", "label": "졸려" },
+      { "category": "행동", "label": "자고싶어" }
+    ],
+    "referenceAnswer": "나 졸려서 자고 싶어."
+  },
+  {
+    "id": 8,
+    "symbolCount": 2,
+    "words": [
+      { "category": "물건", "label": "핸드폰" },
+      { "category": "행동", "label": "하고싶어" }
+    ],
+    "referenceAnswer": "나 핸드폰 하고 싶어."
+  },
+  {
+    "id": 9,
+    "symbolCount": 3,
+    "words": [
+      { "category": "감정", "label": "배고파" },
+      { "category": "음식", "label": "밥" },
+      { "category": "행동", "label": "먹고싶어" }
+    ],
+    "referenceAnswer": "나 배고파, 밥 먹고 싶어."
+  },
+  {
+    "id": 10,
+    "symbolCount": 3,
+    "words": [
+      { "category": "장소", "label": "공원" },
+      { "category": "행동", "label": "가고싶어" },
+      { "category": "사람", "label": "친구" }
+    ],
+    "referenceAnswer": "나 친구랑 공원 가고 싶어."
+  },
+  {
+    "id": 11,
+    "symbolCount": 3,
+    "words": [
+      { "category": "감정", "label": "아파" },
+      { "category": "장소", "label": "병원" },
+      { "category": "행동", "label": "가고싶어" }
+    ],
+    "referenceAnswer": "나 아파서 병원 가고 싶어."
+  },
+  {
+    "id": 12,
+    "symbolCount": 3,
+    "words": [
+      { "category": "물건", "label": "책" },
+      { "category": "행동", "label": "읽고싶어" },
+      { "category": "장소", "label": "도서관" }
+    ],
+    "referenceAnswer": "나 도서관에서 책 읽고 싶어."
+  },
+  {
+    "id": 13,
+    "symbolCount": 4,
+    "words": [
+      { "category": "사람", "label": "엄마" },
+      { "category": "장소", "label": "마트" },
+      { "category": "음식", "label": "과자" },
+      { "category": "행동", "label": "사줘" }
+    ],
+    "referenceAnswer": "엄마, 마트에서 과자 사줘."
+  },
+  {
+    "id": 14,
+    "symbolCount": 4,
+    "words": [
+      { "category": "시간", "label": "오늘" },
+      { "category": "장소", "label": "학교" },
+      { "category": "행동", "label": "안가고싶어" },
+      { "category": "감정", "label": "힘들어" }
+    ],
+    "referenceAnswer": "나 오늘 학교 가기 싫어, 힘들어."
+  },
+  {
+    "id": 15,
+    "symbolCount": 4,
+    "words": [
+      { "category": "사람", "label": "선생님" },
+      { "category": "신체", "label": "배" },
+      { "category": "감정", "label": "아파" },
+      { "category": "행동", "label": "쉬고싶어" }
+    ],
+    "referenceAnswer": "선생님, 배가 아파서 쉬고 싶어요."
+  },
+  {
+    "id": 16,
+    "symbolCount": 4,
+    "words": [
+      { "category": "시간", "label": "점심" },
+      { "category": "음식", "label": "피자" },
+      { "category": "사람", "label": "친구" },
+      { "category": "행동", "label": "먹고싶어" }
+    ],
+    "referenceAnswer": "나 점심에 친구랑 피자 먹고 싶어."
+  },
+  {
+    "id": 17,
+    "symbolCount": 5,
+    "words": [
+      { "category": "시간", "label": "내일" },
+      { "category": "사람", "label": "아빠" },
+      { "category": "장소", "label": "놀이공원" },
+      { "category": "행동", "label": "가고싶어" },
+      { "category": "감정", "label": "신나" }
+    ],
+    "referenceAnswer": "나 내일 아빠랑 놀이공원 가고 싶어, 신나."
+  },
+  {
+    "id": 18,
+    "symbolCount": 5,
+    "words": [
+      { "category": "사람", "label": "엄마" },
+      { "category": "시간", "label": "오늘" },
+      { "category": "음식", "label": "떡볶이" },
+      { "category": "행동", "label": "만들어줘" },
+      { "category": "감정", "label": "먹고싶어" }
+    ],
+    "referenceAnswer": "엄마, 오늘 떡볶이 만들어줘, 너무 먹고 싶어."
+  },
+  {
+    "id": 19,
+    "symbolCount": 5,
+    "words": [
+      { "category": "시간", "label": "저녁" },
+      { "category": "장소", "label": "집" },
+      { "category": "사람", "label": "가족" },
+      { "category": "음식", "label": "치킨" },
+      { "category": "행동", "label": "먹고싶어" }
+    ],
+    "referenceAnswer": "나 저녁에 집에서 가족이랑 치킨 먹고 싶어."
+  },
+  {
+    "id": 20,
+    "symbolCount": 6,
+    "words": [
+      { "category": "시간", "label": "오늘" },
+      { "category": "감정", "label": "힘들어" },
+      { "category": "장소", "label": "집" },
+      { "category": "행동", "label": "가고싶어" },
+      { "category": "사람", "label": "엄마" },
+      { "category": "행동", "label": "보고싶어" }
+    ],
+    "referenceAnswer": "나 오늘 많이 힘들어, 집에 가서 엄마 보고 싶어."
+  },
+  {
+    "id": 21,
+    "symbolCount": 2,
+    "history": [
+      { "userInput": "[장소] 학교, [행동] 가고싶어", "aiResponse": "나 학교 가고 싶어." }
+    ],
+    "words": [
+      { "category": "음식", "label": "급식" },
+      { "category": "행동", "label": "먹고싶어" }
+    ],
+    "referenceAnswer": "거기서 급식도 먹고 싶어."
+  },
+  {
+    "id": 22,
+    "symbolCount": 2,
+    "history": [
+      { "userInput": "[감정] 아파, [장소] 병원, [행동] 가고싶어", "aiResponse": "나 아파서 병원 가고 싶어." }
+    ],
+    "words": [
+      { "category": "물건", "label": "약" },
+      { "category": "행동", "label": "먹고싶어" }
+    ],
+    "referenceAnswer": "약도 먹고 싶어."
+  },
+  {
+    "id": 23,
+    "symbolCount": 2,
+    "history": [
+      { "userInput": "[장소] 공원, [사람] 친구, [행동] 가고싶어", "aiResponse": "나 친구랑 공원 가고 싶어." }
+    ],
+    "words": [
+      { "category": "음식", "label": "아이스크림" },
+      { "category": "행동", "label": "먹고싶어" }
+    ],
+    "referenceAnswer": "거기서 아이스크림도 먹고 싶어."
+  },
+  {
+    "id": 24,
+    "symbolCount": 2,
+    "history": [
+      { "userInput": "[감정] 배고파, [음식] 밥, [행동] 먹고싶어", "aiResponse": "나 배고파, 밥 먹고 싶어." }
+    ],
+    "words": [
+      { "category": "음식", "label": "물" },
+      { "category": "행동", "label": "먹고싶어" }
+    ],
+    "referenceAnswer": "물도 마시고 싶어."
+  },
+  {
+    "id": 25,
+    "symbolCount": 3,
+    "history": [
+      { "userInput": "[장소] 집, [행동] 가고싶어", "aiResponse": "나 집에 가고 싶어." },
+      { "userInput": "[사람] 엄마, [행동] 보고싶어", "aiResponse": "엄마 보고 싶어." }
+    ],
+    "words": [
+      { "category": "음식", "label": "밥" },
+      { "category": "사람", "label": "엄마" },
+      { "category": "행동", "label": "먹고싶어" }
+    ],
+    "referenceAnswer": "엄마랑 밥 먹고 싶어."
+  }
+]
