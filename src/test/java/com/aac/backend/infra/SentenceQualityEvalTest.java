@@ -12,8 +12,6 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.evaluation.RelevancyEvaluator;
-import org.springframework.ai.evaluation.EvaluationRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -35,6 +33,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SentenceQualityEvalTest {
 
+    private static final String EVALUATOR_SYSTEM_PROMPT = """
+            당신은 AAC(보완대체의사소통) 문장 품질 평가자입니다.
+            발달장애인이 선택한 기호 목록을 바탕으로 AI가 생성한 문장이 적절한지 평가합니다.
+
+            평가 기준:
+            1. 모든 기호의 핵심 의도가 문장에 반영되어 있는가
+            2. 자연스러운 표현을 위한 의미적 변환은 허용합니다
+               예) [음식] 물 + [행동] 먹고싶어 → '마시고 싶어' (올바른 변환)
+               예) [감정] 배고파 + [행동] 먹고싶어 → '배고파, 먹고 싶어' (올바른 변환)
+            3. 문장이 1인칭 시점으로 자연스러운 한국어인가
+            4. 기호에 없는 내용을 임의로 추가하지 않았는가
+
+            다음 JSON 형식으로만 응답하세요. 다른 텍스트는 포함하지 마세요:
+            {"pass": true, "score": 0.95, "reason": "평가 이유를 한 문장으로"}
+            """;
+
     @Autowired
     private WordSentenceGenerator wordSentenceGenerator;
 
@@ -54,35 +68,47 @@ class SentenceQualityEvalTest {
 
     @ParameterizedTest(name = "[{index}] id={0} symbolCount={1}")
     @MethodSource("evalCases")
-    void 생성된_문장이_입력_기호와_관련성이_있어야_한다(EvalCase evalCase) {
+    void 생성된_문장이_입력_기호의_의도를_반영해야_한다(EvalCase evalCase) throws Exception {
         var words = evalCase.words().stream()
                 .map(w -> new WordRequest(w.category(), w.label()))
                 .toList();
-        var query = wordSentenceGenerator.formatWords(words);
+        var symbols = wordSentenceGenerator.formatWords(words);
 
         var result = wordSentenceGenerator.generate(words, List.of());
 
         if (!result.success()) {
-            results.add(CaseResult.failure(evalCase, query, result.failureReason()));
+            results.add(CaseResult.failure(evalCase, symbols, result.failureReason()));
             assertThat(result.success())
                     .as("id=%d 생성 실패: %s", evalCase.id(), result.failureReason())
                     .isTrue();
             return;
         }
 
-        var evaluator = new RelevancyEvaluator(chatClientBuilder);
-        var evalRequest = new EvaluationRequest(query, List.of(), result.sentence());
-        var evalResponse = evaluator.evaluate(evalRequest);
+        var evalResult = evaluate(symbols, result.sentence());
 
-        results.add(CaseResult.of(evalCase, query, result.sentence(), evalResponse.isPass(), evalResponse.getScore()));
+        results.add(CaseResult.of(evalCase, symbols, result.sentence(), evalResult));
 
-        log.info("[id={}] symbols='{}' | generated='{}' | pass={} | score={}",
-                evalCase.id(), query, result.sentence(), evalResponse.isPass(), evalResponse.getScore());
+        log.info("[id={}] symbols='{}' | generated='{}' | pass={} | score={} | reason='{}'",
+                evalCase.id(), symbols, result.sentence(),
+                evalResult.pass(), evalResult.score(), evalResult.reason());
 
-        assertThat(evalResponse.isPass())
-                .as("id=%d: 생성 문장이 입력 기호와 관련이 없음.\n  기호: %s\n  문장: %s",
-                        evalCase.id(), query, result.sentence())
+        assertThat(evalResult.pass())
+                .as("id=%d: %s\n  기호: %s\n  문장: %s",
+                        evalCase.id(), evalResult.reason(), symbols, result.sentence())
                 .isTrue();
+    }
+
+    private EvalResult evaluate(String symbols, String sentence) throws Exception {
+        var userMessage = "입력 기호: " + symbols + "\n생성 문장: " + sentence;
+        var response = chatClientBuilder.build()
+                .prompt()
+                .system(EVALUATOR_SYSTEM_PROMPT)
+                .user(userMessage)
+                .call()
+                .content();
+
+        var mapper = new ObjectMapper();
+        return mapper.readValue(response, EvalResult.class);
     }
 
     @AfterAll
@@ -144,8 +170,8 @@ class SentenceQualityEvalTest {
                 String.format("%.1f%%", passRate * 100), String.format("%.3f", avgScore));
         results.stream()
                 .filter(r -> !r.pass())
-                .forEach(r -> log.warn("  [FAIL] id={} symbols='{}' generated='{}'",
-                        r.id(), r.symbols(), r.generatedSentence()));
+                .forEach(r -> log.warn("  [FAIL] id={} reason='{}' symbols='{}' generated='{}'",
+                        r.id(), r.reason(), r.symbols(), r.generatedSentence()));
         log.info("리포트 저장: {}", reportFile.toAbsolutePath());
         log.info("==================================");
     }
@@ -154,17 +180,20 @@ class SentenceQualityEvalTest {
 
     record WordEntry(String category, String label) {}
 
-    record CaseResult(int id, int symbolCount, String symbols, String referenceAnswer,
-                      String generatedSentence, boolean pass, Double score, String failureReason) {
+    record EvalResult(boolean pass, double score, String reason) {}
 
-        static CaseResult of(EvalCase c, String symbols, String generated, boolean pass, double score) {
+    record CaseResult(int id, int symbolCount, String symbols, String referenceAnswer,
+                      String generatedSentence, boolean pass, Double score,
+                      String reason, String failureReason) {
+
+        static CaseResult of(EvalCase c, String symbols, String generated, EvalResult eval) {
             return new CaseResult(c.id(), c.symbolCount(), symbols, c.referenceAnswer(),
-                    generated, pass, score, null);
+                    generated, eval.pass(), eval.score(), eval.reason(), null);
         }
 
         static CaseResult failure(EvalCase c, String symbols, String reason) {
             return new CaseResult(c.id(), c.symbolCount(), symbols, c.referenceAnswer(),
-                    null, false, null, reason);
+                    null, false, null, null, reason);
         }
     }
 }
