@@ -1,0 +1,21 @@
+spring:
+  ai:
+    openai:
+      chat:
+        enabled: false
+      embedding:
+        enabled: false
+    ollama:
+      base-url: http://localhost:11434
+      chat:
+        enabled: true
+        options:
+          model: llama3.2
+          temperature: 0.3
+      embedding:
+        enabled: true
+        options:
+          model: nomic-embed-text
+
+generation:
+  summarizer-model: llama3.2

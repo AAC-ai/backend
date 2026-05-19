@@ -4,8 +4,7 @@ import com.aac.backend.domain.ConversationMessage;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.openai.OpenAiChatOptions;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -39,14 +38,11 @@ public class ConversationContextSummarizer {
 
     private final ChatClient chatClient;
     private final ObjectMapper objectMapper;
-    private final String summarizerModel;
 
-    public ConversationContextSummarizer(ChatClient chatClient,
-                                         ObjectMapper objectMapper,
-                                         @Value("${generation.summarizer-model:gpt-4o-mini}") String summarizerModel) {
+    public ConversationContextSummarizer(@Qualifier("summarizerChatClient") ChatClient chatClient,
+                                         ObjectMapper objectMapper) {
         this.chatClient = chatClient;
         this.objectMapper = objectMapper;
-        this.summarizerModel = summarizerModel;
     }
 
     public Optional<String> summarize(List<ConversationMessage> history, String currentSymbols) {
@@ -64,7 +60,6 @@ public class ConversationContextSummarizer {
             var response = chatClient.prompt()
                     .system(SYSTEM_PROMPT)
                     .user(userMessage)
-                    .options(OpenAiChatOptions.builder().model(summarizerModel).build())
                     .call()
                     .content();
 
