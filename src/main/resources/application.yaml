@@ -41,6 +41,9 @@ oidc:
 prompts:
   sentence: ${prompts.sentence}
 
+generation:
+  candidates: 3
+
 cors:
   allowed-origins:
     - http://localhost:5173
