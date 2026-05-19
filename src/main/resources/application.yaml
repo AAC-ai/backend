@@ -40,9 +40,11 @@ oidc:
 
 prompts:
   sentence: ${prompts.sentence}
+  sentence-single: ${prompts.sentence-single}
 
 generation:
-  candidates: 3
+  summarizer-model: gpt-4o-mini
+
 
 cors:
   allowed-origins:
