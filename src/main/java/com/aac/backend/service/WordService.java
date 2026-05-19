@@ -9,6 +9,8 @@ import com.aac.backend.infra.WordSentenceGenerator;
 import com.aac.backend.presentation.argumentresolver.LoginUser;
 import com.aac.backend.presentation.dto.request.WordRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,19 +19,18 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@EnableConfigurationProperties(ConversationContextProperties.class)
 public class WordService {
-
-    private static final int SESSION_EXPIRY_HOURS = 4;
 
     private final WordSentenceGenerator wordSentenceGenerator;
     private final ConversationMessageRepository conversationMessageRepository;
     private final UserRepository userRepository;
+    private final ConversationContextProperties contextProperties;
 
     @Transactional
     public String generateSentence(List<WordRequest> words, LoginUser loginUser) {
         var history = loginUser.userId()
-                .filter(this::isSessionAlive)
-                .map(conversationMessageRepository::findTop10ByUserIdOrderByCreatedAtAsc)
+                .map(this::loadContext)
                 .orElse(List.of());
 
         var sentence = wordSentenceGenerator.generate(words, history);
@@ -39,9 +40,11 @@ public class WordService {
         return sentence;
     }
 
-    private boolean isSessionAlive(Long userId) {
-        var threshold = LocalDateTime.now().minusHours(SESSION_EXPIRY_HOURS);
-        return conversationMessageRepository.existsByUserIdAndCreatedAtAfter(userId, threshold);
+    private List<ConversationMessage> loadContext(Long userId) {
+        var threshold = LocalDateTime.now().minusHours(contextProperties.thresholdHours());
+        return conversationMessageRepository.findRecentContext(
+                userId, threshold, PageRequest.of(0, contextProperties.limit())
+        );
     }
 
     private void saveConversationHistory(Long userId, List<WordRequest> words, String sentence) {
