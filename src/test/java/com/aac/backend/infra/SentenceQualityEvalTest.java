@@ -5,8 +5,6 @@ import com.aac.backend.presentation.dto.request.WordRequest;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Tag;
@@ -20,13 +18,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -148,66 +141,24 @@ class SentenceQualityEvalTest {
 
     @AfterAll
     void writeReport() throws Exception {
+        new SentenceEvalReportWriter().write(results);
+
         long passCount = results.stream().filter(CaseResult::pass).count();
-        double passRate = results.isEmpty() ? 0 : (double) passCount / results.size();
         double avgScore = results.stream()
                 .filter(r -> r.score() != null)
                 .mapToDouble(CaseResult::score)
-                .average()
-                .orElse(0);
-
-        var bySymbolCount = results.stream()
-                .collect(Collectors.groupingBy(r -> r.symbolCount))
-                .entrySet().stream()
-                .sorted(Map.Entry.comparingByKey())
-                .collect(Collectors.toMap(
-                        e -> e.getKey() + "개",
-                        e -> {
-                            var group = e.getValue();
-                            long gPass = group.stream().filter(CaseResult::pass).count();
-                            return Map.of(
-                                    "total", group.size(),
-                                    "pass", gPass,
-                                    "fail", group.size() - gPass,
-                                    "passRate", String.format("%.0f%%", (double) gPass / group.size() * 100)
-                            );
-                        },
-                        (a, b) -> a,
-                        java.util.LinkedHashMap::new
-                ));
-
-        var report = Map.of(
-                "timestamp", LocalDateTime.now().toString(),
-                "summary", Map.of(
-                        "total", results.size(),
-                        "pass", passCount,
-                        "fail", results.size() - passCount,
-                        "passRate", String.format("%.1f%%", passRate * 100),
-                        "avgScore", String.format("%.3f", avgScore)
-                ),
-                "bySymbolCount", bySymbolCount,
-                "cases", results
-        );
-
-        var reportDir = Path.of("build/reports/eval");
-        Files.createDirectories(reportDir);
-        var reportFile = reportDir.resolve("eval-result-" + LocalDateTime.now()
-                .toString().replaceAll("[:.T]", "-") + ".json");
-
-        var mapper = new ObjectMapper()
-                .registerModule(new JavaTimeModule())
-                .enable(SerializationFeature.INDENT_OUTPUT);
-        mapper.writeValue(reportFile.toFile(), report);
+                .average().orElse(0);
 
         log.info("\n========== 평가 리포트 ==========");
         log.info("총 케이스: {} | 통과: {} | 실패: {} | 통과율: {} | 평균 점수: {}",
                 results.size(), passCount, results.size() - passCount,
-                String.format("%.1f%%", passRate * 100), String.format("%.3f", avgScore));
+                String.format("%.1f%%", (double) passCount / results.size() * 100),
+                String.format("%.3f", avgScore));
         results.stream()
                 .filter(r -> !r.pass())
                 .forEach(r -> log.warn("  [FAIL] id={} reason='{}' symbols='{}' generated='{}'",
                         r.id(), r.reason(), r.symbols(), r.generatedSentence()));
-        log.info("리포트 저장: {}", reportFile.toAbsolutePath());
+        log.info("리포트 저장: build/reports/eval/");
         log.info("==================================");
     }
 
