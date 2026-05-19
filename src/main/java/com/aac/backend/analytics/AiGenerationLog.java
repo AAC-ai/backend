@@ -37,10 +37,14 @@ public class AiGenerationLog extends BaseEntity {
 
     private Integer totalTokens;
 
+    @Column(columnDefinition = "TEXT")
+    private String contextSummary;
+
     private AiGenerationLog(String traceId, Integer wordCount, String selectedWords,
                              String model, Long latencyMs, String contextMessages,
                              Boolean success, String failureReason,
-                             Integer promptTokens, Integer completionTokens, Integer totalTokens) {
+                             Integer promptTokens, Integer completionTokens, Integer totalTokens,
+                             String contextSummary) {
         this.traceId = traceId;
         this.wordCount = wordCount;
         this.selectedWords = selectedWords;
@@ -52,18 +56,20 @@ public class AiGenerationLog extends BaseEntity {
         this.promptTokens = promptTokens;
         this.completionTokens = completionTokens;
         this.totalTokens = totalTokens;
+        this.contextSummary = contextSummary;
     }
 
     public static AiGenerationLog success(String traceId, Integer wordCount, String selectedWords,
                                           String model, Long latencyMs, String contextMessages,
-                                          Integer promptTokens, Integer completionTokens, Integer totalTokens) {
+                                          Integer promptTokens, Integer completionTokens, Integer totalTokens,
+                                          String contextSummary) {
         return new AiGenerationLog(traceId, wordCount, selectedWords, model, latencyMs, contextMessages,
-                true, null, promptTokens, completionTokens, totalTokens);
+                true, null, promptTokens, completionTokens, totalTokens, contextSummary);
     }
 
     public static AiGenerationLog failure(String traceId, Integer wordCount, String selectedWords,
                                           String model, Long latencyMs, String contextMessages, String failureReason) {
         return new AiGenerationLog(traceId, wordCount, selectedWords, model, latencyMs, contextMessages,
-                false, failureReason, null, null, null);
+                false, failureReason, null, null, null, null);
     }
 }

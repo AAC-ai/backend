@@ -104,6 +104,19 @@ class SentenceQualityEvalTest {
                 .as("id=%d: %s\n  기호: %s\n  문장: %s",
                         evalCase.id(), evalResult.reason(), symbols, result.sentence())
                 .isTrue();
+
+        if (evalCase.id() == 26) {
+            assertContextNotLeaked(result.sentence(), List.of("물", "라면", "사과"), evalCase.id());
+        }
+    }
+
+    private void assertContextNotLeaked(String sentence, List<String> forbiddenWords, int caseId) {
+        for (var word : forbiddenWords) {
+            assertThat(sentence)
+                    .as("id=%d: 이전 컨텍스트('%s')가 무관한 현재 문장에 포함되어서는 안 됨\n  문장: %s", caseId, word, sentence)
+                    .doesNotContain(word);
+        }
+        log.info("[id={}] 컨텍스트 배제 검증 통과 — 금지어 {} 모두 미포함", caseId, forbiddenWords);
     }
 
     private List<ConversationMessage> buildHistory(List<HistoryEntry> entries) throws Exception {
