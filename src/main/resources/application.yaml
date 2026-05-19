@@ -10,6 +10,7 @@ spring:
       - config/openai.yml
       - config/db.yml
       - config/prompts.yml
+      - config/conversation.yml
   ai:
     openai:
       api-key: ${spring.ai.openai.api-key}

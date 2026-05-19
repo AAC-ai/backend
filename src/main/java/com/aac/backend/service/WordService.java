@@ -9,23 +9,28 @@ import com.aac.backend.infra.WordSentenceGenerator;
 import com.aac.backend.presentation.argumentresolver.LoginUser;
 import com.aac.backend.presentation.dto.request.WordRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@EnableConfigurationProperties(ConversationContextProperties.class)
 public class WordService {
 
     private final WordSentenceGenerator wordSentenceGenerator;
     private final ConversationMessageRepository conversationMessageRepository;
     private final UserRepository userRepository;
+    private final ConversationContextProperties contextProperties;
 
     @Transactional
     public String generateSentence(List<WordRequest> words, LoginUser loginUser) {
         var history = loginUser.userId()
-                .map(conversationMessageRepository::findTop10ByUserIdOrderByCreatedAtAsc)
+                .map(this::loadContext)
                 .orElse(List.of());
 
         var sentence = wordSentenceGenerator.generate(words, history);
@@ -33,6 +38,13 @@ public class WordService {
         loginUser.userId().ifPresent(id -> saveConversationHistory(id, words, sentence));
 
         return sentence;
+    }
+
+    private List<ConversationMessage> loadContext(Long userId) {
+        var threshold = LocalDateTime.now().minusHours(contextProperties.thresholdHours());
+        return conversationMessageRepository.findRecentContext(
+                userId, threshold, PageRequest.of(0, contextProperties.limit())
+        );
     }
 
     private void saveConversationHistory(Long userId, List<WordRequest> words, String sentence) {
