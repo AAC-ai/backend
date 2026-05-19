@@ -27,7 +27,7 @@ public class WordSentenceGenerator {
         this.systemPrompt = systemPrompt;
     }
 
-    public String generate(List<WordRequest> wordRequests, List<ConversationMessage> history) {
+    public GenerationResult generate(List<WordRequest> wordRequests, List<ConversationMessage> history) {
         var symbols = formatWords(wordRequests);
         log.info("symbols: {}", symbols);
 
@@ -37,20 +37,33 @@ public class WordSentenceGenerator {
             messages.add(new AssistantMessage(msg.getAiResponse()));
         }
 
-        var response = chatClient.prompt()
-                .system(systemPrompt)
-                .messages(messages)
-                .user(symbols)
-                .call()
-                .chatResponse();
+        var start = System.currentTimeMillis();
+        try {
+            var response = chatClient.prompt()
+                    .system(systemPrompt)
+                    .messages(messages)
+                    .user(symbols)
+                    .call()
+                    .chatResponse();
 
-        var usage = response.getMetadata().getUsage();
-        log.info("tokens - prompt: {}, completion: {}, total: {}",
-                usage.getPromptTokens(),
-                usage.getCompletionTokens(),
-                usage.getTotalTokens());
+            var latencyMs = System.currentTimeMillis() - start;
+            var model = response.getMetadata().getModel();
+            var usage = response.getMetadata().getUsage();
+            log.info("model: {}, latency: {}ms, tokens - prompt: {}, completion: {}, total: {}",
+                    model, latencyMs,
+                    usage.getPromptTokens(),
+                    usage.getCompletionTokens(),
+                    usage.getTotalTokens());
 
-        return response.getResult().getOutput().getText();
+            return GenerationResult.success(
+                    response.getResult().getOutput().getText(), model, latencyMs,
+                    usage.getPromptTokens(), usage.getCompletionTokens(), usage.getTotalTokens()
+            );
+        } catch (Exception e) {
+            var latencyMs = System.currentTimeMillis() - start;
+            log.error("AI 문장 생성 실패: {}", e.getMessage());
+            return GenerationResult.failure(null, latencyMs, e.getMessage());
+        }
     }
 
     public String formatWords(List<WordRequest> words) {
