@@ -4,13 +4,10 @@ import com.aac.backend.domain.ConversationMessage;
 import com.aac.backend.presentation.dto.request.WordRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.ai.chat.messages.AssistantMessage;
-import org.springframework.ai.chat.messages.Message;
-import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,39 +16,75 @@ import java.util.stream.Collectors;
 public class WordSentenceGenerator {
 
     private final ChatClient chatClient;
+    private final SentenceReranker sentenceReranker;
+    private final ConversationContextSummarizer contextSummarizer;
     private final String systemPrompt;
+    private final int candidateCount;
 
     public WordSentenceGenerator(ChatClient chatClient,
-                                 @Value("${prompts.sentence}") String systemPrompt) {
+                                 SentenceReranker sentenceReranker,
+                                 ConversationContextSummarizer contextSummarizer,
+                                 @Value("${prompts.sentence}") String systemPrompt,
+                                 @Value("${generation.candidates:3}") int candidateCount) {
         this.chatClient = chatClient;
+        this.sentenceReranker = sentenceReranker;
+        this.contextSummarizer = contextSummarizer;
         this.systemPrompt = systemPrompt;
+        this.candidateCount = candidateCount;
     }
 
-    public String generate(List<WordRequest> wordRequests, List<ConversationMessage> history) {
+    public GenerationResult generate(List<WordRequest> wordRequests, List<ConversationMessage> history) {
         var symbols = formatWords(wordRequests);
         log.info("symbols: {}", symbols);
 
-        var messages = new ArrayList<Message>();
-        for (ConversationMessage msg : history) {
-            messages.add(new UserMessage(msg.getUserInput()));
-            messages.add(new AssistantMessage(msg.getAiResponse()));
+        var summarizedPrompt = buildSystemPrompt(history, symbols);
+
+        var start = System.currentTimeMillis();
+        try {
+            var response = chatClient.prompt()
+                    .system(summarizedPrompt.prompt())
+                    .user(symbols)
+                    .options(OpenAiChatOptions.builder().N(candidateCount).build())
+                    .call()
+                    .chatResponse();
+
+            var latencyMs = System.currentTimeMillis() - start;
+            var model = response.getMetadata().getModel();
+            var usage = response.getMetadata().getUsage();
+
+            var candidates = response.getResults().stream()
+                    .map(g -> g.getOutput().getText())
+                    .toList();
+
+            log.info("model: {}, latency: {}ms, tokens - prompt: {}, completion: {}, total: {}, candidates: {}",
+                    model, latencyMs,
+                    usage.getPromptTokens(), usage.getCompletionTokens(), usage.getTotalTokens(),
+                    candidates);
+
+            var best = sentenceReranker.rerank(candidates, symbols);
+
+            return GenerationResult.success(
+                    best, model, latencyMs,
+                    usage.getPromptTokens(), usage.getCompletionTokens(), usage.getTotalTokens(),
+                    summarizedPrompt.contextSummary()
+            );
+        } catch (Exception e) {
+            var latencyMs = System.currentTimeMillis() - start;
+            log.error("AI 문장 생성 실패: {}", e.getMessage());
+            return GenerationResult.failure(null, latencyMs, e.getMessage());
         }
-
-        var response = chatClient.prompt()
-                .system(systemPrompt)
-                .messages(messages)
-                .user(symbols)
-                .call()
-                .chatResponse();
-
-        var usage = response.getMetadata().getUsage();
-        log.info("tokens - prompt: {}, completion: {}, total: {}",
-                usage.getPromptTokens(),
-                usage.getCompletionTokens(),
-                usage.getTotalTokens());
-
-        return response.getResult().getOutput().getText();
     }
+
+    private SummarizedPrompt buildSystemPrompt(List<ConversationMessage> history, String symbols) {
+        var summary = contextSummarizer.summarize(history, symbols);
+        if (summary.isEmpty()) {
+            return new SummarizedPrompt(systemPrompt, null);
+        }
+        var prompt = systemPrompt + "\n\n현재 상황: " + summary.get() + "\n이 상황을 고려하여 문장을 생성하세요.";
+        return new SummarizedPrompt(prompt, summary.get());
+    }
+
+    private record SummarizedPrompt(String prompt, String contextSummary) {}
 
     public String formatWords(List<WordRequest> words) {
         return words.stream()
