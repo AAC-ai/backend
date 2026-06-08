@@ -11,6 +11,7 @@ spring:
       - config/db.yml
       - config/prompts.yml
       - config/conversation.yml
+      - config/clova-voice.yml
   ai:
     openai:
       api-key: ${spring.ai.openai.api-key}
