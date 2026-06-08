@@ -1,9 +1,5 @@
 package com.aac.backend.presentation;
 
-import com.aac.backend.global.exception.BusinessException;
-import com.aac.backend.global.exception.ErrorCode;
-import com.aac.backend.presentation.argumentresolver.CurrentUser;
-import com.aac.backend.presentation.argumentresolver.LoginUser;
 import com.aac.backend.presentation.dto.request.TtsRequest;
 import com.aac.backend.service.TtsService;
 import jakarta.validation.Valid;
@@ -21,11 +17,8 @@ public class TtsController {
 
     @PostMapping
     public ResponseEntity<byte[]> synthesize(
-            @Valid @RequestBody TtsRequest request,
-            @CurrentUser LoginUser loginUser
+            @Valid @RequestBody TtsRequest request
     ) {
-        loginUser.userId().orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED));
-
         byte[] audio = ttsService.synthesize(request.text());
 
         return ResponseEntity.ok()
