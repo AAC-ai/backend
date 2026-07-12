@@ -40,13 +40,16 @@ public class ConversationContextSummarizer {
     private final ChatClient chatClient;
     private final ObjectMapper objectMapper;
     private final String summarizerModel;
+    private final int summarizerMaxCompletionTokens;
 
     public ConversationContextSummarizer(ChatClient chatClient,
                                          ObjectMapper objectMapper,
-                                         @Value("${generation.summarizer-model:gpt-4o-mini}") String summarizerModel) {
+                                         @Value("${generation.summarizer-model:gpt-4o-mini}") String summarizerModel,
+                                         @Value("${generation.summarizer-max-completion-tokens:120}") int summarizerMaxCompletionTokens) {
         this.chatClient = chatClient;
         this.objectMapper = objectMapper;
         this.summarizerModel = summarizerModel;
+        this.summarizerMaxCompletionTokens = summarizerMaxCompletionTokens;
     }
 
     public Optional<String> summarize(List<ConversationMessage> history, String currentSymbols) {
@@ -64,7 +67,10 @@ public class ConversationContextSummarizer {
             var response = chatClient.prompt()
                     .system(SYSTEM_PROMPT)
                     .user(userMessage)
-                    .options(OpenAiChatOptions.builder().model(summarizerModel).build())
+                    .options(OpenAiChatOptions.builder()
+                            .model(summarizerModel)
+                            .maxCompletionTokens(summarizerMaxCompletionTokens)
+                            .build())
                     .call()
                     .content();
 

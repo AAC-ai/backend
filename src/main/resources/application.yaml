@@ -45,6 +45,8 @@ prompts:
 
 generation:
   summarizer-model: gpt-4o-mini
+  sentence-max-completion-tokens: 64
+  summarizer-max-completion-tokens: 120
 
 
 cors:
