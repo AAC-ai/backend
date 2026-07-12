@@ -4,6 +4,8 @@ import com.aac.backend.domain.ConversationMessage;
 import com.aac.backend.presentation.dto.request.WordRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.openai.OpenAiChatOptions;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -16,13 +18,16 @@ public class WordSentenceGenerator {
     private final ChatClient chatClient;
     private final ConversationContextSummarizer contextSummarizer;
     private final PromptRouter promptRouter;
+    private final int sentenceMaxCompletionTokens;
 
     public WordSentenceGenerator(ChatClient chatClient,
                                  ConversationContextSummarizer contextSummarizer,
-                                 PromptRouter promptRouter) {
+                                 PromptRouter promptRouter,
+                                 @Value("${generation.sentence-max-completion-tokens:64}") int sentenceMaxCompletionTokens) {
         this.chatClient = chatClient;
         this.contextSummarizer = contextSummarizer;
         this.promptRouter = promptRouter;
+        this.sentenceMaxCompletionTokens = sentenceMaxCompletionTokens;
     }
 
     public GenerationResult generate(List<WordRequest> wordRequests, List<ConversationMessage> history) {
@@ -36,6 +41,9 @@ public class WordSentenceGenerator {
             var response = chatClient.prompt()
                     .system(summarizedPrompt.prompt())
                     .user(symbols)
+                    .options(OpenAiChatOptions.builder()
+                            .maxCompletionTokens(sentenceMaxCompletionTokens)
+                            .build())
                     .call()
                     .chatResponse();
 
