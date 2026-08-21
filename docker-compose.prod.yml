@@ -18,9 +18,17 @@ services:
       - "8080"
     environment:
       SPRING_PROFILES_ACTIVE: prod
+      DB_PROD_URL: "jdbc:h2:file:/app/data/aac;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_ON_EXIT=FALSE"
+      DB_PROD_USERNAME: sa
+      DB_PROD_PASSWORD: ""
+      DB_PROD_DRIVER_CLASS_NAME: org.h2.Driver
+      DB_PROD_DDL_AUTO: update
+      DB_PROD_SHOW_SQL: "false"
     volumes:
+      - h2_data:/app/data
       - ./src/main/resources/config:/app/config:ro
 
 volumes:
+  h2_data:
   caddy_data:
   caddy_config:
